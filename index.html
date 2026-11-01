@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#246b45">
+<title>Milk Diary</title>
+<style>
+:root{--green:#246b45;--green-dark:#174b30;--green-soft:#e8f4ec;--bg:#f4f7f4;--card:#fff;--text:#17251c;--muted:#718078;--line:#e3eae4;--amber:#fff3df;--shadow:0 7px 24px rgba(26,66,42,.07)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+button{font:inherit;touch-action:manipulation}
+.app{width:100%;max-width:600px;margin:auto;padding:16px 14px calc(28px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;gap:11px;margin:3px 2px 17px}
+.logo{width:47px;height:47px;border-radius:15px;background:var(--green-soft);display:grid;place-items:center;font-size:25px}
+h1{font-size:21px;line-height:1.1;margin:0}
+.sub{font-size:12px;color:var(--muted);margin-top:4px}
+.hero{background:linear-gradient(135deg,#246b45,#39895c);color:#fff;border-radius:22px;padding:18px;box-shadow:var(--shadow)}
+.hero-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.eyebrow{font-size:11px;letter-spacing:.06em;opacity:.85;font-weight:700}
+.total{font-size:31px;font-weight:850;margin-top:3px}
+.price{font-size:12px;background:#ffffff24;padding:9px 11px;border-radius:12px;white-space:nowrap}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.stat{background:#ffffff19;border:1px solid #ffffff22;border-radius:14px;padding:11px}
+.stat-label{font-size:11px;opacity:.85}.stat-value{font-size:23px;font-weight:800;margin-top:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:19px;padding:15px;margin-top:14px;box-shadow:var(--shadow)}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+h2{font-size:16px;margin:0}
+.small{font-size:11px;color:var(--muted)}
+.month-nav{display:flex;align-items:center;gap:10px}
+.month-nav button{width:40px;height:40px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--green);font-size:22px}
+.month-name{font-size:15px;font-weight:800;flex:1;text-align:center}
+.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.weekday{text-align:center;color:var(--muted);font-size:10px;font-weight:750;padding:3px 0 5px}
+.day{height:58px;min-width:0;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--text);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:3px 0}
+.day .date{font-size:13px;font-weight:750}.day .qty{font-size:9px;font-weight:800;color:var(--green)}
+.day.zero .qty{color:#a56b19}.day.selected{border:2px solid var(--green);background:var(--green-soft)}
+.day.today .date:after{content:" •";color:#e28b25}
+.day.future,.day.empty{background:#f7f8f7;color:#c0c9c2;border-color:#edf0ed}
+.day:disabled{cursor:not-allowed}
+.legend{display:flex;gap:13px;flex-wrap:wrap;margin-top:11px;font-size:10px;color:var(--muted)}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:5px}.legend .none{background:#d69a3d}
+.selected-date{font-size:13px;font-weight:750;margin-top:2px}
+.options{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:13px}
+.choice{border:1.5px solid var(--line);border-radius:15px;background:#fff;padding:12px 5px;min-height:78px;color:var(--text)}
+.choice strong{display:block;font-size:25px}.choice span{font-size:11px;color:var(--muted)}
+.choice.active{border-color:var(--green);background:var(--green-soft);color:var(--green-dark)}
+.choice.active span{color:var(--green-dark)}
+.action{width:100%;border:0;border-radius:14px;background:var(--green);color:#fff;font-weight:800;padding:14px 16px;margin-top:13px;min-height:49px}
+.action:disabled{opacity:.45}
+.note{font-size:11px;line-height:1.45;color:var(--muted);margin:10px 1px 0}
+.payment{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.amount{font-size:24px;font-weight:850;margin-top:3px}
+.paid-btn{border:0;border-radius:12px;background:var(--green);color:#fff;padding:11px 13px;font-weight:750}
+.paid-btn.paid{background:var(--green-soft);color:var(--green-dark);border:1px solid #cce5d3}
+.status{font-size:11px;font-weight:750;color:#a56b19}
+.status.paid{color:var(--green)}
+.footer{text-align:center;color:var(--muted);font-size:10px;line-height:1.5;padding:18px 8px 0}
+.toast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#17251c;color:#fff;padding:11px 16px;border-radius:12px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:var(--shadow);white-space:nowrap;max-width:90vw}
+.toast.show{opacity:1}
+@media(max-width:380px){.app{padding-left:10px;padding-right:10px}.card{padding:12px}.day{height:53px}.calendar{gap:4px}.price{font-size:11px}.total{font-size:28px}}
+</style>
+</head>
+<body>
+<main class="app">
+<header><div class="logo">🥛</div><div><h1>Milk Diary</h1><div class="sub">Daily milk packet tracker</div></div></header>
+
+<section class="hero">
+  <div class="hero-head"><div><div class="eyebrow">THIS MONTH'S BILL</div><div class="total" id="billTotal">₹0</div></div><div class="price">₹33 / packet</div></div>
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Packets taken</div><div class="stat-value" id="packetTotal">0</div></div>
+    <div class="stat"><div class="stat-label">Days recorded</div><div class="stat-value" id="daysRecorded">0</div></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>Monthly calendar</h2><span class="small">Select today or an earlier date</span></div>
+  <div class="month-nav"><button id="prevMonth" aria-label="Previous month">‹</button><div class="month-name" id="monthName"></div><button id="nextMonth" aria-label="Next month">›</button></div>
+  <div class="calendar" id="calendar" style="margin-top:13px"></div>
+  <div class="legend"><span><i></i>Milk recorded</span><span><i class="none"></i>No packets</span></div>
+</section>
+
+<section class="card" id="entryCard">
+  <div class="card-head"><div><h2>Daily entry</h2><div class="selected-date" id="selectedDate"></div></div><span class="small">₹33 each</span></div>
+  <div class="options">
+    <button class="choice" data-qty="0"><strong>0</strong><span>No milk</span></button>
+    <button class="choice" data-qty="1"><strong>1</strong><span>Packet</span></button>
+    <button class="choice" data-qty="2"><strong>2</strong><span>Packets</span></button>
+  </div>
+  <button class="action" id="saveEntry" disabled>Choose quantity first</button>
+  <p class="note" id="entryNote">Select how many packets were delivered, then tap Save. You can update this date later.</p>
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>Monthly payment</h2><span class="status" id="paymentStatus">PENDING</span></div>
+  <div class="payment"><div><div class="small">Amount to pay</div><div class="amount" id="paymentAmount">₹0</div></div><button class="paid-btn" id="paymentBtn" disabled>Mark as paid</button></div>
+  <p class="note" id="paymentNote">Payment confirmation becomes available on the last day of this month.</p>
+</section>
+<div class="footer">Saved on this device in this browser. Avoid clearing browser data unless you have a backup.</div>
+</main>
+<div class="toast" id="toast" role="status"></div>
+<script>
+(() => {
+ const PRICE=33, KEY="milk-diary-mobile-v2", now=new Date();
+ let year=now.getFullYear(), month=now.getMonth(), selected=now.getDate(), draft=null, data={};
+ try{data=JSON.parse(localStorage.getItem(KEY)||"{}")}catch{data={}}
+ const $=id=>document.getElementById(id);
+ const mkey=(y,m)=>`${y}-${String(m+1).padStart(2,"0")}`;
+ const todayKey=()=>`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+ const monthObj=()=>data[mkey(year,month)]||{days:{},paid:false};
+ const persist=()=>localStorage.setItem(KEY,JSON.stringify(data));
+ const maxDay=()=>year===now.getFullYear()&&month===now.getMonth()?now.getDate():new Date(year,month+1,0).getDate();
+ const isFutureMonth=()=>year>now.getFullYear()||(year===now.getFullYear()&&month>now.getMonth());
+ const dateKey=(d)=>`${mkey(year,month)}-${String(d).padStart(2,"0")}`;
+ const dateText=(d)=>new Intl.DateTimeFormat("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(new Date(year,month,d));
+ function toast(msg){$("toast").textContent=msg;$("toast").classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>$("toast").classList.remove("show"),1700)}
+ function ensure(){let k=mkey(year,month);if(!data[k])data[k]={days:{},paid:false};if(!data[k].days)data[k].days={};}
+ function renderCalendar(){
+  const c=$("calendar");c.innerHTML="";
+  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(w=>{let e=document.createElement("div");e.className="weekday";e.textContent=w;c.appendChild(e)});
+  const first=new Date(year,month,1).getDay(), count=new Date(year,month+1,0).getDate(), obj=monthObj();
+  for(let i=0;i<first;i++){let e=document.createElement("div");e.className="day empty";c.appendChild(e)}
+  for(let d=1;d<=count;d++){
+   let b=document.createElement("button");b.type="button";b.className="day";
+   let future=isFutureMonth()|| (year===now.getFullYear()&&month===now.getMonth()&&d>now.getDate());
+   let q=obj.days[d];
+   if(q!==undefined)b.classList.add(q===0?"zero":"has-entry");
+   if(d===selected)b.classList.add("selected");
+   if(year===now.getFullYear()&&month===now.getMonth()&&d===now.getDate())b.classList.add("today");
+   if(future){b.classList.add("future");b.disabled=true}
+   b.innerHTML=`<span class="date">${d}</span><span class="qty">${q===undefined?"—":q===0?"None":q+" pkt"+(q===1?"":"s")}</span>`;
+   if(!future)b.addEventListener("click",()=>{selected=d;draft=null;render();$("entryCard").scrollIntoView({behavior:"smooth",block:"nearest"})});
+   c.appendChild(b);
+  }
+  $("nextMonth").disabled=(year===now.getFullYear()&&month===now.getMonth())||isFutureMonth();
+  $("nextMonth").style.opacity=$("nextMonth").disabled?".35":"1";
+ }
+ function renderEntry(){
+  const obj=monthObj(), saved=obj.days[selected];
+  $("selectedDate").textContent=dateText(selected);
+  document.querySelectorAll(".choice").forEach(b=>b.classList.toggle("active",draft!==null?Number(b.dataset.qty)===draft:saved!==undefined&&Number(b.dataset.qty)===saved));
+  const save=$("saveEntry");
+  if(draft===null){save.disabled=true;save.textContent=saved===undefined?"Choose quantity first":"Select a quantity to update";}
+  else {save.disabled=false;save.textContent=saved===undefined?"Save entry":"Update entry";}
+  $("entryNote").textContent=saved===undefined?"Select 0, 1 or 2 packets, then tap Save.":"Saved: "+saved+" packet"+(saved===1?"":"s")+". Choose a new quantity and tap Update to change it.";
+ }
+ function renderSummary(){
+  const obj=monthObj(), vals=Object.values(obj.days), packets=vals.reduce((a,b)=>a+b,0), total=packets*PRICE;
+  $("billTotal").textContent="₹"+total.toLocaleString("en-IN");$("packetTotal").textContent=packets;$("daysRecorded").textContent=vals.length;
+  $("paymentAmount").textContent="₹"+total.toLocaleString("en-IN");
+  $("paymentStatus").textContent=obj.paid?"PAID":"PENDING";$("paymentStatus").classList.toggle("paid",!!obj.paid);
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  const monthHasEnded = new Date(now.getFullYear(), now.getMonth(), now.getDate()) >= new Date(year, month, lastDay);
+  $("paymentBtn").disabled = !monthHasEnded;
+  $("paymentBtn").textContent=obj.paid?"Mark as pending":"Mark as paid";
+  $("paymentBtn").classList.toggle("paid",!!obj.paid);
+  $("paymentNote").textContent = monthHasEnded
+    ? "The month has ended. Confirm the total with your milk supplier, then mark the payment as paid."
+    : "Payment confirmation becomes available on " + lastDay + " " + new Intl.DateTimeFormat("en-IN",{month:"long"}).format(new Date(year,month,1)) + ".";
+ }
+ function render(){
+  $("monthName").textContent=new Intl.DateTimeFormat("en-IN",{month:"long",year:"numeric"}).format(new Date(year,month,1));
+  renderCalendar();renderEntry();renderSummary();
+ }
+ document.querySelectorAll(".choice").forEach(b=>b.addEventListener("click",()=>{draft=Number(b.dataset.qty);renderEntry()}));
+ $("saveEntry").addEventListener("click",()=>{
+  if(draft===null)return;
+  if(isFutureMonth()||(year===now.getFullYear()&&month===now.getMonth()&&selected>now.getDate()))return;
+  ensure();const obj=data[mkey(year,month)], existed=obj.days[selected]!==undefined;
+  obj.days[selected]=draft;persist();draft=null;render();toast(existed?"Entry updated":"Entry saved");
+ });
+ $("prevMonth").addEventListener("click",()=>{month--;if(month<0){month=11;year--}selected=1;draft=null;render()});
+ $("nextMonth").addEventListener("click",()=>{if($("nextMonth").disabled)return;month++;if(month>11){month=0;year++}selected=1;draft=null;render()});
+ $("paymentBtn").addEventListener("click",()=>{
+  if($("paymentBtn").disabled)return;
+  ensure();let obj=data[mkey(year,month)];obj.paid=!obj.paid;persist();renderSummary();toast(obj.paid?"Payment marked as paid":"Payment marked as pending")
+ });
+ render();
+})();
+</script>
+</body>
+</html>
